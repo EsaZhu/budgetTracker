@@ -1,3 +1,3 @@
-C:/Users/elele/CLionProjects/budgetTracker/cmake-build-debug/CMakeFiles/budgetTracker.dir
-C:/Users/elele/CLionProjects/budgetTracker/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/elele/CLionProjects/budgetTracker/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/elele/CLionProjects/budgetTracker/cmake-build-debug/CMakeFiles/budgetTracker.dir
+/mnt/c/Users/elele/CLionProjects/budgetTracker/cmake-build-debug/CMakeFiles/edit_cache.dir
+/mnt/c/Users/elele/CLionProjects/budgetTracker/cmake-build-debug/CMakeFiles/rebuild_cache.dir

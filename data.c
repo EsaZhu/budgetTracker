@@ -17,18 +17,12 @@
 // char description[100];
 // char amount[100];
 
-char line[256];
-void fileRead(FILE* file){
+struct file_info(FILE ) {
+    char id[100];
+    char date[100];
+    char type[100];
+    char category[100];
+    char description[100];
+    char amount[100];
 
-  while (fgets(line, sizeof(line), file) != NULL) {
-    //process each line in the text file
-    char *token;
-    char *rest = line;
-
-    while ((token = strtok_r(rest, ",", &rest))) {
-
-    }
-  }
-
-
-}
+};
