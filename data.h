@@ -7,26 +7,29 @@
 
 #include <stdio.h>
 
-//Function to open file for reading
-//parameters:
-//filename: name of file to open
-//returns: pointer to the opened file object or null on failure
-//FILE* open_txt(const char* filename);
+// Store the extracted fields from each row by grouping related data items of different types.
+// Must create a struct named Entry with all the fields in each line of the txt file
 
-//Function to read a line from opened file into a string bugger
-//parameters:
-// file: pointer to opened file object
-// buffer: charcter array to store read line
-//buffer_size: maximum size of the buffer (int array)
-// Returns: pointer to bugger array or NULL if end-of-file is reached
-//char* read_txt(FILE* file, char* buffer, int buffer_size);
+typedef struct entry {
+    int id;
+    char date[15];
+    char type[15];
+    char category[15];
+    char description[15];
+    double amount;
+};
 
-//Function to close opened file
-//parameters:
-// file: pointer to FILE object
-//void close_txt(FILE* file);
+//create function prototypes for opening, parsing, and closing the txt file
+// a function prototype is a function declaration: returnType functionName(type1 parameter1, ...);
 
+//opening a file. Return a pointer to a file. Take parameters for a filename and the mode of the file (open and close).
+FILE* openFile(const char* filename, const char* mode);
 
+//parsing a file. Return a pointer to an entry and takes as a parameter a string (line from the file)
+struct entry* parseLine(char input[]);
+
+//closing a file
+int close_file(FILE* file);
 
 
 #endif //DATA_H
