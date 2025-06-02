@@ -7,43 +7,109 @@
 #include "data.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
+int arraySize = 0;
 
-struct entry* parseLine(char input[]) {
-    //creating a duplicate of input array to avoid segmentation errors
-    struct entry* tempEntry = malloc(strlen(input) + 1);
-    strcpy(tempEntry, input);
-
-    //allocate memory for new entry
-    struct entry* entry = malloc(sizeof(struct entry));
-    if (entry == NULL) {
-        return NULL;
+FILE* openFile(const char* filename, const char* mode) {
+    FILE* file = fopen(filename, mode);
+    if (file == NULL) {
+        printf("Error opening file\n");
     }
+    return file;
+}
+
+struct entry parseLine(char input[]) {
+
+    printf("test2");
+
+    char tempInput[1024];
+    strcpy(tempInput, input);
 
     //tokenize the input array based on "|" delimiter
-    char* dataId  = strtok(tempEntry, "|");
+    char* dataId  = strtok(tempInput, "|");
     char* dataDate = strtok(NULL, "|");
     char* dataType = strtok(NULL, "|");
     char* dataCategory = strtok(NULL, "|");
     char* dataDescription = strtok(NULL, "|");
     char* dataAmount = strtok(NULL, "|");
-    if (dataId == NULL || dataDate == NULL || dataType == NULL || dataCategory == NULL || dataAmount == NULL) {
-        return NULL;
-    }
 
-    //Copying string tokens into the char array of the entry. Converting string tokens to appropriate type.
-    if (sizeof(dataId) == sizeof(int)) {
-        entry->id = atoi(dataId);
-    }
+    //Secntion data into correct struct
+    struct entry tempEntry;
+    tempEntry.id = atoi(dataId);
+    memcpy(tempEntry.date, dataDate, strlen(dataDate));
+    memcpy(tempEntry.type, dataType, strlen(dataType));
+    memcpy(tempEntry.category, dataCategory, strlen(dataCategory));
+    memcpy(tempEntry.description, dataDescription, strlen(dataDescription));
+    tempEntry.amount = atof(dataAmount);
 
-    memcpy(entry->date, dataDate, sizeof(entry->date));
-    memcpy(entry->type, dataType, sizeof(entry->type));
-    memcpy(entry->category, dataCategory, sizeof(entry->category));
-    memcpy(entry->description, dataDescription, sizeof(entry->description));
-    if (sizeof(dataAmount) == sizeof(double)) {
-        entry->amount = atof(dataAmount);
-    }
 
+    return tempEntry;
 
 }
 
+//function to take the text from finance.txt and dynamically resizes the struct array
+
+struct entry* fileInput() {
+
+    printf("test1");
+
+  int rows = 0;
+  struct entry* entry = (struct entry*)malloc(1*sizeof(*entry));
+  FILE *filePtr = fopen("finance.txt", "r");
+  char row_buffer[1024];
+
+  int i = 0;
+  while (fgets(row_buffer, 256, filePtr) != NULL) {
+    rows++;
+    entry = realloc(entry, sizeof(*entry) * rows);
+    char* temp = (char*)malloc(strlen(row_buffer));
+    printf("test");
+    printf("%s", temp);
+
+    strncpy(temp, row_buffer, strlen(row_buffer) - 1);
+    struct entry tempEntry = parseLine(temp);
+    entry[i] = tempEntry;
+
+    i++;
+    free(temp);
+  }
+
+  arraySize = rows;
+  fclose(filePtr);
+  return entry;
+
+}
+
+
+
+int close_file(FILE* file) {
+    if (file == NULL) {
+        return 1;
+    }
+    fclose(file);
+    return 0;
+}
+
+
+
+
+// redo
+
+int totalLines = 0;
+
+struct entry* readLine() {
+
+  FILE* filePtr;
+  int bufferLength = 100;
+  char buffer[bufferLength];
+
+  int rows = 0;
+  filePtr = fopen("finance.txt", "r");
+  while(fgets(buffer, bufferLength, filePtr) != NULL) {
+    rows++;
+
+  }
+
+
+}

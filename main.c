@@ -1,28 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "data.c"
+
+#include "data.h"
+#include "ordering.h"
+#include "budget.h"
 
 // main function with basic GUI
 
-int main(void) {
+int main() {
 
-    //Open the text file
-    FILE *fptr;
-    fptr = fopen("finances.txt", "r");
-    if (fptr == NULL) {
-        printf("Error opening file\n");
-        fclose(fptr);
-        return 1;
-    }
+   struct entry* entries = fileInput();
 
 
+    int choice = -1;
 
-
-    int choice;
-
-    void menu() {
-        printf("Budget Tracking System\n"
+    do{
+       printf("Budget Tracking System\n"
                "=====================\n"
                "1. Display all entries\n"
                "2. Expense Distribution\n"
@@ -32,35 +26,39 @@ int main(void) {
                "6. Filter by Month\n"
                "7. Exit\n");
         printf("Choice: ");
-        scanf("%d", &choice);
-    }
+        do{
+            scanf("%d", &choice);
+        }while(choice < 1 || choice > 7);
 
-    menu();
+        system("clear");
 
-    switch (choice) {
-        case 1:
-            system("clear");
-            menu();
-        case 2:
-            system("clear");
-             menu();
-        case 3:
-            break;
-        case 4:
-            break;
-        case 5:
-            break;
-        case 6:
-            break;
-        case 7:
-            printf("Goodbye and thanks for using our budget tracker app\n");
-            break;
-        default:
-            printf("Invalid Choice\n");
-            system("clear");
-            menu();
+            switch (choice) {
+            case 1:
+                printf("hello");
+                displayAllEntries(entries);
+                break;
+            case 2:
+                expenseDistribution(entries);
+                break;
+            case 3:
+                entries = sortEntries(entries);
+                break;
+            case 4:
+                entries = addIncomeOrExpenseEntry(entries);
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            default:
+                break;
 
-    }
+         }
 
+
+    }while(choice != 7);
+    printf("Goodbye and thanks for using our budget tracker app\n");
     return 0;
 }
