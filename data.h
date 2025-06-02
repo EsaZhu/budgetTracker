@@ -10,13 +10,15 @@
 // Store the extracted fields from each row by grouping related data items of different types.
 // Must create a struct named Entry with all the fields in each line of the txt file
 
+#define MAX_FIELD_LENGTH 100 //all string fields are no longer than 100 characters.
+#define MAX_LINE_LENGTH (6*MAX_FIELD_LENGTH+5) //  6 files + 5 delimiters
 
 typedef struct entry {
     int id;
-    char date[101];
-    char type[101];
-    char category[101];
-    char description[101];
+    char date[MAX_FIELD_LENGTH + 1];
+    char type[MAX_FIELD_LENGTH + 1];
+    char category[MAX_FIELD_LENGTH + 1];
+    char description[MAX_FIELD_LENGTH + 1];
     double amount;
 } Entry;
 
@@ -34,8 +36,6 @@ struct entry* fileInput();
 //parsing a file. Return a pointer to an entry and takes as a parameter a string (line from the file)
 struct entry parseLine(char input[]);
 
-//closing a file
-int close_file(FILE* file);
 
 
 #endif //DATA_H

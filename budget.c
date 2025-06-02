@@ -11,14 +11,14 @@
 
 //the code used to carry out the logic of the menu options - biggest file -
 
-void displayAllEntries(struct entry e[]){
+void displayAllEntries(struct entry e[], int size){
  	 printf("\nFinances Summary\n"
          	"=================\n"
             "ID    Date         Type       Category     Description     Amount\n"
-         	 "‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐ \n");
+         	 "----------------------------------------------------------------- \n");
 
-     for(int i = 0; i < arraySize; i++){
-     	printf("%-6d%-13s%-11s%-13s%-16s%-11.2lf\n",
+     for(int i = 0; i < size; i++){
+     	printf("%-6d%-13s%-11s%-13s%-16s%11.2lf\n",
               e[i].id,
               e[i].date,
               e[i].type,
@@ -42,12 +42,14 @@ void expenseDistribution(struct entry entries[]){
     if(strcmp(entries[i].type, "income") == 0) {
       totalIncome += entries[i].amount;
     }
-    else if(strcmp(entries[i].type, "total") == 0) {
+    else if(strcmp(entries[i].type, "expense") == 0) {
       totalExpenses += entries[i].amount;
-      if(strcmp(entries[i].category, "needs") == 0) {
+
+      if(strcmp(entries[i].category, "Needs") == 0) {
 		totalNeeds += entries[i].amount;
       }
-      else if(strcmp(entries[i].category, "wants") == 0) {
+
+      else if(strcmp(entries[i].category, "Wants") == 0) {
            totalWants += entries[i].amount;
       }
     }
@@ -56,76 +58,90 @@ void expenseDistribution(struct entry entries[]){
 
   netBalance = totalIncome - totalExpenses;
 
+  double needsExpense = totalNeeds/totalExpenses * 100;
+  double needsIncome = totalNeeds/totalIncome * 100;
+
+  double wantsExpense = totalWants/totalExpenses * 100;
+  double wantsIncome = totalWants/totalIncome * 100;
+
 	printf("\n===== Expense Distribution Report =====\n"
          "Total Income: $%.2lf\n"
          "Total Expenses: $%.2lf\n"
-         "Needs: $%.2lf\n"
-         "Wants: $%.2lf\n"
+         "Needs: $%.2lf (%.2lf%% of expenses, %.2lf%% of income)\n"
+         "Wants: $%.2lf (%.2lf%% of expenses, %.2lf%% of income)\n"
          "Net Balance: $%.2lf\n",
-         totalIncome, totalExpenses, totalNeeds, totalWants, netBalance);
+         totalIncome, totalExpenses, totalNeeds, needsExpense, needsIncome, totalWants, wantsExpense, wantsIncome, netBalance);
 
   	printf("=====================================\n");
 }
 
 struct entry* addIncomeOrExpenseEntry(struct entry entries[]){
 
-  char enter;
+  char enter = 0;
+  char date[11] = {0};
+  char type[20] = {0};
+  char category[20] = {0};
+  char description[100] = {0};
+  double amount = 0;
 
-  char date;
-  char type;
-  char category;
-  char description;
-  double amount;
-  int id = entries[arraySize].id + 1;
+  int id = (arraySize > 0) ? entries[arraySize-1].id + 1 : 1; //create a new ID which is 1 more than the last
 
-  printf("Use today's date? (y/n)");
-  scanf("%s", &enter);
+  printf("Use today's date? (y/n) ");
+  scanf(" %c", &enter); // skip white space. take input of character type
+
   if(enter == 'n' || enter == 'N') {
       printf("Enter date (YYYY-MM-DD): ");
-      scanf("%s", &date);
+      scanf("%10s", date); //limit input length to 10 chars
   } else {
       time_t rawtime;
       struct tm * timeinfo;
       // YYYY-MM-DD format
       time(&rawtime);
       timeinfo = localtime(&rawtime);
-      strftime(&date, 11, "%Y-%m-%d", timeinfo);
+      strftime(date, sizeof(date), "%Y-%m-%d", timeinfo);
   }
+
+
   printf("Type (income/expense): ");
-  scanf("%s", &type);
+  scanf("%19s", type);
   printf("Category: ");
-  scanf("%s", &category);
+  scanf("%19s", category);
   printf("Description: ");
-  scanf("%s", &description);
-  printf("Amount: ");
+  scanf("%99s", description);
+  printf("Amount: $");
   scanf("%lf", &amount);
 
-  int newSize = arraySize + 1;
+  //reallocate memory
+ 	struct entry* newEntries = realloc(entries, sizeof(struct entry) * (arraySize + 1));
+        if(!newEntries) {
+          fprintf(stderr, "Memory Allocation Failed\n");
+          return entries; // return the original array if the allocation of memory fails to create a new array. this could be due to lack of space
+        }
 
-  struct entry newEntry[newSize];
 
-  for(int i = 0; i < newSize; i++){
-    newEntry[i] = entries[i];
-  }
+  //add a new entry
+  newEntries[arraySize].id = id;
+  strncpy(newEntries[arraySize].date, date, sizeof(newEntries[arraySize].date) - 1);
+  strncpy(newEntries[arraySize].type, type, sizeof(newEntries[arraySize].type) - 1);
+  strncpy(newEntries[arraySize].category, category, sizeof(newEntries[arraySize].category) - 1);
+  strncpy(newEntries[arraySize].description, description, sizeof(entries[arraySize].description) - 1);
+  newEntries[arraySize].amount = amount;
 
-  entries[newSize].id = id;
-  strcpy(entries[newSize].date, &date);
-  strcpy(entries[newSize].type, &type);
-  strcpy(entries[newSize].category, &category);
-  strcpy(entries[newSize].description, &description);
-  entries[newSize].amount = amount;
+  //null-termination
+  newEntries[arraySize].date[sizeof(newEntries[arraySize].date) - 1] = '\0';
+  newEntries[arraySize].type[sizeof(newEntries[arraySize].type) - 1] = '\0';
+  newEntries[arraySize].category[sizeof(newEntries[arraySize].category) - 1] = '\0';
+  newEntries[arraySize].description[sizeof(newEntries[arraySize].description) - 1] = '\0';
 
   arraySize++;
-
-
   printf("Entry added successfully with ID: %-6d\n", id);
-
+  return newEntries;
 
 
 }
 
 void modifyEntry(struct entry entries[]){
-  displayAllEntries(entries);
+  displayAllEntries(entries, arraySize);
 
   int id;
   int choice;
@@ -133,25 +149,38 @@ void modifyEntry(struct entry entries[]){
   double newAmount;
   int entryNum;
 
-  printf("Enter ID of entry to modify: ");
-  scanf("%d", &id);
+  int i = 0;
+  int foundID = 0;
+
+  do{
+    printf("Enter ID of entry to modify: ");
+  	scanf("%d", &id);
+    for(i = 0;i<arraySize;i++){
+      if(id == entries[i].id){
+        foundID = 1;
+        break;
+      }
+    }
+
+  }while(foundID != 1);
+
+
+
+
+  printf("\n");
   printf("Current details:\n");
-  for(int i = 0; i < arraySize; i++){
-    if(id == entries[i].id){
       entryNum = i;
       printf("ID: %-6d\n", entries[i].id);
       printf("Date: %s\n", entries[i].date);
       printf("Type: %s\n", entries[i].type);
       printf("Category: %s\n", entries[i].category);
       printf("Description: %s\n", entries[i].description);
-      printf("Amount: %.2lf\n", entries[i].amount);
-      break;
-    }
-  }
+      printf("Amount: $%.2lf\n", entries[i].amount);
+
 
   printf("What would you like to modify?\n"
-         "1. Date"
-         "2. Amount");
+         "1. Date\n"
+         "2. Amount\n");
 
   scanf("%d", &choice);
   switch(choice){
@@ -161,7 +190,7 @@ void modifyEntry(struct entry entries[]){
       strcpy(entries[entryNum].date, &newDate);
       break;
     case 2:
-      printf("Enter a new amount: ");
+      printf("Enter a new amount: $");
       scanf("%lf", &newAmount);
       entries[entryNum].amount = newAmount;
       break;
@@ -171,6 +200,8 @@ void modifyEntry(struct entry entries[]){
   printf("Entry updated successfully.\n");
 
 }
+
+
 
 
 #include "budget.h"

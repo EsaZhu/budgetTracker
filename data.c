@@ -21,95 +21,87 @@ FILE* openFile(const char* filename, const char* mode) {
 
 struct entry parseLine(char input[]) {
 
-    printf("test2");
-
-    char tempInput[1024];
-    strcpy(tempInput, input);
-
-    //tokenize the input array based on "|" delimiter
-    char* dataId  = strtok(tempInput, "|");
-    char* dataDate = strtok(NULL, "|");
-    char* dataType = strtok(NULL, "|");
-    char* dataCategory = strtok(NULL, "|");
-    char* dataDescription = strtok(NULL, "|");
-    char* dataAmount = strtok(NULL, "|");
-
-    //Secntion data into correct struct
     struct entry tempEntry;
-    tempEntry.id = atoi(dataId);
-    memcpy(tempEntry.date, dataDate, strlen(dataDate));
-    memcpy(tempEntry.type, dataType, strlen(dataType));
-    memcpy(tempEntry.category, dataCategory, strlen(dataCategory));
-    memcpy(tempEntry.description, dataDescription, strlen(dataDescription));
-    tempEntry.amount = atof(dataAmount);
+    char *tokens[6];
+    char *token = strtok(input, "|");
+    int i = 0;
 
+    while(token != NULL && i < 6) {
+      tokens[i++] = token;
+      token = strtok(NULL, "|");
+
+    }
+
+    if(i != 6) {
+      printf("Too many fields in input line\n");
+      exit(EXIT_FAILURE);
+    }
+
+    tempEntry.id = atoi(tokens[0]);
+    strncpy(tempEntry.date, tokens[1], MAX_FIELD_LENGTH);
+    strncpy(tempEntry.type, tokens[2], MAX_FIELD_LENGTH);
+    strncpy(tempEntry.category, tokens[3] , MAX_FIELD_LENGTH);
+    strncpy(tempEntry.description, tokens[4] , MAX_FIELD_LENGTH);
+    tempEntry.amount = atof(tokens[5]);
+
+    tempEntry.date[MAX_FIELD_LENGTH] = '\0';
+    tempEntry.type[MAX_FIELD_LENGTH] = '\0';
+    tempEntry.category[MAX_FIELD_LENGTH] = '\0';
+    tempEntry.description[MAX_FIELD_LENGTH] = '\0';
 
     return tempEntry;
 
 }
 
-//function to take the text from finance.txt and dynamically resizes the struct array
-
 struct entry* fileInput() {
 
-    printf("test1");
-
-  int rows = 0;
-  struct entry* entry = (struct entry*)malloc(1*sizeof(*entry));
-  FILE *filePtr = fopen("finance.txt", "r");
-  char row_buffer[1024];
-
-  int i = 0;
-  while (fgets(row_buffer, 256, filePtr) != NULL) {
-    rows++;
-    entry = realloc(entry, sizeof(*entry) * rows);
-    char* temp = (char*)malloc(strlen(row_buffer));
-    printf("test");
-    printf("%s", temp);
-
-    strncpy(temp, row_buffer, strlen(row_buffer) - 1);
-    struct entry tempEntry = parseLine(temp);
-    entry[i] = tempEntry;
-
-    i++;
-    free(temp);
+  FILE* file = openFile("finances.txt", "r");
+  if (file == NULL) {
+      printf("Error opening file\n");
+      exit(EXIT_FAILURE);
   }
 
-  arraySize = rows;
-  fclose(filePtr);
-  return entry;
+  struct entry *entries = NULL;
+  char row_buffer[MAX_LINE_LENGTH + 2];
+  int capacity = 0;
 
-}
+  while(fgets(row_buffer, sizeof(row_buffer), file) != NULL) {
 
-
-
-int close_file(FILE* file) {
-    if (file == NULL) {
-        return 1;
+    size_t len = strlen(row_buffer);
+    if (len > 0 && row_buffer[len - 1] == '\n') {
+      row_buffer[len - 1] = '\0';
     }
-    fclose(file);
-    return 0;
-}
 
+    if(len == MAX_LINE_LENGTH + 1 && row_buffer[MAX_LINE_LENGTH] != '\n' && row_buffer[MAX_LINE_LENGTH] != '\0') {
+      printf("Error: line too long\n");
+      exit(EXIT_FAILURE);
+    }
 
+    if(arraySize >= capacity) {
+      capacity = (capacity == 0) ? 1 : capacity * 2;
+      struct entry *newEntries = (struct entry*)realloc(entries, sizeof(struct entry) * capacity);
+      if (newEntries == NULL) {
+        free(entries);
+        printf("Memory allocation failed\n");
 
+      }
+      entries = newEntries;
+    }
 
-// redo
-
-int totalLines = 0;
-
-struct entry* readLine() {
-
-  FILE* filePtr;
-  int bufferLength = 100;
-  char buffer[bufferLength];
-
-  int rows = 0;
-  filePtr = fopen("finance.txt", "r");
-  while(fgets(buffer, bufferLength, filePtr) != NULL) {
-    rows++;
+    entries[arraySize] = parseLine(row_buffer);
+    arraySize++;
 
   }
 
+  if(ferror(file)) {
+    free(entries);
+    printf("Error reading file\n");
+    exit(EXIT_FAILURE);
+
+  }
+
+  fclose(file);
+  return entries;
 
 }
+

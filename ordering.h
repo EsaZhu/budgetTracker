@@ -12,5 +12,6 @@ int sortByAmount(const void* a, const void* b);
 int sortByDescription(const void* a, const void* b);
 
 struct entry* sortEntries(struct entry e[]);
+void filterByMonth(struct entry entries[]);
 
 #endif //ORDERING_H

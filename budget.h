@@ -7,7 +7,7 @@
 #include "data.h"
 
 
-void displayAllEntries(struct entry e[]);
+void displayAllEntries(struct entry e[], int size);
 
 void expenseDistribution(struct entry entries[]);
 

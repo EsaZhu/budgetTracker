@@ -34,8 +34,7 @@ int main() {
 
             switch (choice) {
             case 1:
-                printf("hello");
-                displayAllEntries(entries);
+                displayAllEntries(entries, arraySize);
                 break;
             case 2:
                 expenseDistribution(entries);
@@ -47,8 +46,10 @@ int main() {
                 entries = addIncomeOrExpenseEntry(entries);
                 break;
             case 5:
+                modifyEntry(entries);
                 break;
             case 6:
+                filterByMonth(entries);
                 break;
             case 7:
                 break;
