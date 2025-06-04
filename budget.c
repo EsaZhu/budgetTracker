@@ -140,12 +140,13 @@ struct entry* addIncomeOrExpenseEntry(struct entry entries[]){
 
 }
 
+
 void modifyEntry(struct entry entries[]){
   displayAllEntries(entries, arraySize);
 
   int id;
   int choice;
-  char newDate;
+  char newDate[11] = {0};
   double newAmount;
   int entryNum;
 
@@ -178,17 +179,21 @@ void modifyEntry(struct entry entries[]){
       printf("Amount: $%.2lf\n", entries[i].amount);
 
 
-  printf("What would you like to modify?\n"
+  do{
+    printf("What would you like to modify?\n"
          "1. Date\n"
          "2. Amount\n");
+    scanf("%d", &choice);
+  }while(choice < 1 || choice > 2);
 
-  scanf("%d", &choice);
   switch(choice){
     case 1:
       printf("Enter a new date (YYYY-MM-DD): ");
-      scanf("%s", &newDate);
-      strcpy(entries[entryNum].date, &newDate);
+      scanf("%10s", newDate);
+      strncpy(entries[entryNum].date, newDate, 10);
+      entries[entryNum].date[10] = '\0';
       break;
+
     case 2:
       printf("Enter a new amount: $");
       scanf("%lf", &newAmount);
